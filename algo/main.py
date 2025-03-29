@@ -1,7 +1,12 @@
 import numpy as np
 import scipy.sparse as sp
+from torch_geometric.data import Data
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 import preprocessing
+import layers
 
 val_test_size = 0.05
 
@@ -16,8 +21,19 @@ n_drugs = len(stitches)
 
 names = list(stitches)
 drug_features = sp.identity(n_drugs).toarray()
+
+counter = 0
+for i in range(len(names)):
+    names[i] = (counter, names[i])
+    counter += 1
+
 name2featvec = dict(zip(names, drug_features))
 
 se_features = sp.identity(edge_types).toarray()
-featvec2se = dict(zip(se_features, list(ses)))
+num2se = dict(zip(range(0, edge_types), list(ses)))
 
+node_features = torch.tensor(drug_features)
+print(node_features.shape)
+
+
+# model = layers.GCNModel()
