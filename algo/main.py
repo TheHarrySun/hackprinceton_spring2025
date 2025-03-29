@@ -39,8 +39,8 @@ node_features = torch.tensor(drug_features)
 print(node_features.shape)
 
 num_edges = len(combo2se)
-edge_index = [[], []]
-edge_type = []
+edge_index = torch.empty((2,0), dtype=torch.
+edge_type = torch.empty(
 for key, val in combo2se.items():
     name1, name2 = key.split('_')
     edge_index[0].append(name2featvec[name1][0])
@@ -53,8 +53,10 @@ for key, val in combo2se.items():
 print(type(edge_index))
 print(type(edge_type))
 edge_index = np.array(edge_index)
-
 edge_type = np.array(edge_type)
+print(edge_index.shape)
+print(edge_type.shape)
+print(edge_type)
 edge_type = normalize(edge_type, axis = 1, norm = 'l1')
 
 data = Data(x = node_features, edge_index = edge_index, edge_attr = edge_type)
