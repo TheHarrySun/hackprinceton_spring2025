@@ -33,10 +33,11 @@ class BilinearDecoder(nn.Module):
     
 
 class GCNModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim, num_relations):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_edge_types):
         super(GCNModel, self).__init__()
+        self.num_edge_types = num_edge_types
         self.encoder = GCNEncoder(input_dim, hidden_dim, output_dim)
-        self.decoder = BilinearDecoder(output_dim, num_relations)
+        self.decoder = BilinearDecoder(output_dim, num_edge_types)
         
     def forward(self, x, edge_index, edge_type):
         z = self.encoder(x, edge_index)
