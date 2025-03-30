@@ -7,23 +7,20 @@ from torch_geometric.data import Data
 class GCNEncoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super(GCNEncoder, self).__init__()
-        self.conv1 = GCNConv(input_dim, hidden_dim)
+        self.conv1 = GCNConv(input_dim, output_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)
         self.conv3 = GCNConv(hidden_dim, output_dim)
         
     def forward(self, x, edge_index):
         x = self.conv1(x, edge_index)
         x = F.relu(x)
-        x = self.conv2(x, edge_index)
-        x = F.relu(x)
-        x = self.conv3(x, edge_index)
         return x
 
 class SimpleDecoder(nn.Module):
     def __init__(self, embedding_dim, num_relations, hidden_dim = 100):
         super(SimpleDecoder, self).__init__()
         
-        self.fc1 = nn.Linear(embedding_dim * 2, hidden_dim)
+        self.fc1 = nn.Linear(embedding_dim * 2, num_relations)
         self.fc2 = nn.Linear(hidden_dim, num_relations)
         
     def forward(self, z, edge_index):
@@ -31,8 +28,8 @@ class SimpleDecoder(nn.Module):
         
         combined = torch.cat([z[src], z[dst]], dim = -1)
         
-        x = F.relu(self.fc1(combined))
-        x = self.fc2(x)
+        x = self.fc1(combined)
+      #  x = self.fc2(x)
         
         return F.softmax(x, dim = -1)
 

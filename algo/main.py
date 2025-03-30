@@ -8,28 +8,37 @@ import torch.optim as optim
 from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 from torch_geometric.transforms import RandomLinkSplit
+from rdkit import Chem
+from rdkit.Chem import Descriptors, rdMolDescriptors
 
 
 import preprocessing
 import layers
 
-combo2stitch, combo2se, se2name, stitches = preprocessing.load_data()
+combo2stitch, combo2se, se2name, stitches = preprocessing.load_data("../bio-decagon-combo-mini.csv")
+
+cids = [int(x[3:]) for x in stitches]
+
+smiles_dict = preprocessing.get_smiles_from_cids(cids)
+
+vec_dict = preprocessing.extract_molecular_features(smiles_dict)
+
+print("length of molecular descriptor vector: ", len(list(vec_dict.values())[0]))
 
 ses = set()
 for se_set in combo2se.values():
     ses = ses.union(se_set)
 
 edge_types = len(ses)
-n_drugs = len(stitches)
 
 names = list(stitches)
-drug_features = sp.identity(n_drugs).toarray()
+drug_features = list(vec_dict.keys())
 
-counter = 0
+n_drugs = len(drug_features)
+
 drug_feat_count = []
-for i in range(len(drug_features)):
-    drug_feat_count.append((counter, drug_features[i]))
-    counter += 1
+for i in range(n_drugs):
+    drug_feat_count.append((i, drug_features[i]))
 
 name2featvec = dict(zip(names, drug_feat_count))
 
@@ -58,10 +67,6 @@ for i in range(num_edges):
     if (i % 1000 == 0):
         print(i)
     
-print(type(edge_index))
-print(type(edge_type))
-print(edge_index.shape)
-print(edge_type.shape)
 edge_type = normalize(edge_type, axis = 1, norm = 'l1')
 
 data = Data(x = node_features, edge_index = edge_index, edge_attr = edge_type)
@@ -71,7 +76,7 @@ model = layers.GCNModel(input_dim = len(node_features[0]), hidden_dim = len(node
 optimizer = optim.Adam(model.parameters(), lr = 0.01)
 
 transform = RandomLinkSplit(num_val = 0.1, num_test = 0.1, is_undirected=False, add_negative_train_samples =False)
-print(type(data))
+
 train_data, val_data, test_data = transform(data)
 
 def loss_function(predictions, true_edge_types):
