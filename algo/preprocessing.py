@@ -34,13 +34,10 @@ def get_smiles_from_cids(cids):
             try:
                 smiles = data['PropertyTable']['Properties'][0]['CanonicalSMILES']
                 smiles_dict[cid] = smiles
-                print(f"CID {cid}: {smiles}")
             except (KeyError, IndexError):
                 smiles_dict[cid] = None
-                print(f"CID {cid}: SMILES not found")
         else:
             smiles_dict[cid] = None
-            print(f"CID {cid}: Request failed with status {response.status_code}")
     
     return smiles_dict
 
@@ -60,4 +57,6 @@ def extract_molecular_features(smiles_dict):
         descriptor_values = np.nan_to_num(descriptor_values, nan=0.0)
         feature_vector = np.array(descriptor_values)
         vec_dict[key] = feature_vector
+        if (len(feature_vector) != 1613):
+            print("length doesn't match")
     return vec_dict

@@ -29,35 +29,44 @@ print("length of molecular descriptor vector: ", vec_len)
 
 drug1 = []
 drug2 = []
+names = []
 possible_ses = {}
 counter = 0
 for key1, val1 in vec_dict.items():
     for key2, val2 in vec_dict.items():
         if (key1 == key2):
             continue
-        name = "CID" + str(key1) + "_" + "CID" + str(key2)
+        name = "CID" + "{:09d}".format(key1) + "_" + "CID" + "{:09d}".format(key2)
         if (name in combo2se):
-            drug1.append(key1)
-            drug2.append(key2)
+            drug1.append(val1)
+            drug2.append(val2)
+            names.append(name)
             for se in combo2se[name]:
                 if se not in possible_ses:
                     possible_ses[se] = counter
                     counter += 1
                 
-print(drug1)
-print(drug2)
 labels = []
-for i in range(len(drug1)):
-    name = "CID" + str(drug1[i]) + "_" + "CID" + str(drug2[i])
+for name in names:
     total_ses = len(possible_ses)
-    label = torch.zeros((1, total_ses))
+    label = torch.zeros((total_ses))
     for se in combo2se[name]:
-        label.add(F.one_hot(possible_ses[se], total_ses))
+        label[possible_ses[se]] = 1
     labels.append(label)
-    print(labels)
-labels = normalize(labels, axis = 1, norm = 'l1')
-    
-drug1_train, drug1_test, drug2_train, drug2_test, label_train, label_test = train_test_split(drug1, drug2, label, test_size = 0.1, random_state = 42)
+
+print("length of labels")
+print(len(labels))
+print(len(labels[0]))
+print("length of drug1")
+print(len(drug1))
+print(len(drug1[0]))
+print("length of drug2")
+print(len(drug2))
+print(len(drug2[0]))
+labels = torch.stack(labels)
+drug1 = torch.Tensor(np.array(drug1), dtype=torch.float32)
+drug2 = torch.Tensor(np.array(drug2), dtype=torch.float32)
+drug1_train, drug1_test, drug2_train, drug2_test, label_train, label_test = train_test_split(drug1, drug2, labels, test_size = 0.1, random_state = 42)
 
 model = ffnn.FFNN(len(drug1_train[0]), hidden_dim = (len(drug1_train[0])) // 2, combined_hidden = (len(drug1_train[0])) // 4, num_classes = counter + 1)
 
