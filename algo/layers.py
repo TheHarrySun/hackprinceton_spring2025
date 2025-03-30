@@ -19,6 +19,23 @@ class GCNEncoder(nn.Module):
         x = self.conv3(x, edge_index)
         return x
 
+class SimpleDecoder(nn.Module):
+    def __init__(self, embedding_dim, num_relations, hidden_dim = 100):
+        super(SimpleDecoder, self).__init__()
+        
+        self.fc1 = nn.Linear(embedding_dim * 2, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, num_relations)
+        
+    def forward(self, z, edge_index):
+        src, dst = edge_index
+        
+        combined = torch.cat([z[src], z[dst]], dim = -1)
+        
+        x = F.relu(self.fc1(combined))
+        x = self.fc2(x)
+        
+        return F.softmax(x, dim = -1)
+
 class BilinearDecoder(nn.Module):
     def __init__(self, embedding_dim, num_relations):
         super(BilinearDecoder, self).__init__()
@@ -27,8 +44,12 @@ class BilinearDecoder(nn.Module):
     def forward(self, z, edge_index, edge_type):
         src, dst = edge_index
         rel_matrix = self.relation_matrices[edge_type]
-        
+        print(self.relation_matrices.shape)
+        print(z[src].shape)
+        print(rel_matrix.shape)
+        print(z[dst].shape)
         scores = (z[src] @ rel_matrix) * z[dst]
+        print("GCNDecoder output shape: ", scores.shape)
         return torch.sigmoid(scores.sum(dim=1))
     
 
@@ -37,10 +58,10 @@ class GCNModel(nn.Module):
         super(GCNModel, self).__init__()
         self.num_edge_types = num_edge_types
         self.encoder = GCNEncoder(input_dim, hidden_dim, output_dim)
-        self.decoder = BilinearDecoder(output_dim, num_edge_types)
+        self.decoder = SimpleDecoder(output_dim, num_edge_types, 3 * output_dim)
         
-    def forward(self, x, edge_index, edge_type):
+    def forward(self, x, edge_index):
         z = self.encoder(x, edge_index)
-        return self.decoder(z, edge_index, edge_type)
+        return self.decoder(z, edge_index)
     
         

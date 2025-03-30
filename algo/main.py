@@ -6,7 +6,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.preprocessing import normalize
-from torch_geometric.utils import train_test_split_edges
+import matplotlib.pyplot as plt
+from torch_geometric.transforms import RandomLinkSplit
+
 
 import preprocessing
 import layers
@@ -35,11 +37,11 @@ se_features = sp.identity(edge_types).toarray()
 num2se = dict(zip(range(0, edge_types), list(ses)))
 
 se2featvec = dict(zip(list(ses), se_features))
-node_features = torch.tensor(drug_features)
+node_features = torch.tensor(drug_features, dtype=torch.float32)
 
 num_edges = len(combo2se)
-edge_index = torch.zeros((2, num_edges))
-edge_type = torch.zeros((0, edge_types))
+edge_index = torch.zeros((2, num_edges), dtype=torch.long)
+edge_type = torch.zeros((0, edge_types), dtype=torch.float32)
 
 combos = list(combo2se.keys())
 ses_from_combos = list(combo2se.values())
@@ -49,9 +51,9 @@ for i in range(num_edges):
     name1, name2 = combos[i].split('_')
     edge_index[0, i] = name2featvec[name1][0]
     edge_index[1, i] = name2featvec[name2][0]
-    temp = torch.zeros(1, edge_types)
+    temp = torch.zeros(1, edge_types, dtype=torch.float32)
     for se in ses_from_combos[i]:
-        temp.add(torch.tensor(se2featvec[se]))
+        temp.add(torch.tensor(se2featvec[se], dtype=torch.float32))
     edge_type = torch.cat([edge_type, temp], dim = 0)
     if (i % 1000 == 0):
         print(i)
@@ -60,7 +62,6 @@ print(type(edge_index))
 print(type(edge_type))
 print(edge_index.shape)
 print(edge_type.shape)
-print(edge_type)
 edge_type = normalize(edge_type, axis = 1, norm = 'l1')
 
 data = Data(x = node_features, edge_index = edge_index, edge_attr = edge_type)
@@ -69,45 +70,54 @@ model = layers.GCNModel(input_dim = len(node_features[0]), hidden_dim = len(node
 
 optimizer = optim.Adam(model.parameters(), lr = 0.01)
 
-data = train_test_split_edges(data, test_ratio=0.1, val_ratio = 0.1)
-
-train_edges = data.train_edge_index
-val_edges = data.val_edge_index
-test_edges = data.test_edge_index
+transform = RandomLinkSplit(num_val = 0.1, num_test = 0.1, is_undirected=False, add_negative_train_samples =False)
+print(type(data))
+train_data, val_data, test_data = transform(data)
 
 def loss_function(predictions, true_edge_types):
-    return F.binary_cross_entropy(predictions, true_edge_types.float())
+    return F.binary_cross_entropy(predictions, true_edge_types)
+
+def evaluate(model, data, edge_index, edge_attr):
+    model.eval()
+    with torch.no_grad():
+        out = model(data.x, edge_index)
+        predicted_edge_types = (out > 0.5).long()
+        loss = loss_function(out, torch.tensor(edge_attr, dtype=torch.float32))
+        accuracy = (predicted_edge_types == edge_attr).float().mean().item()
+    return [accuracy, loss]
 
 def train(model, data, optimizer, epochs = 100):
     model.train()
+    val_loss = []
+    val_acc = []
     for epoch in range(epochs):
         optimizer.zero_grad()
         
-        out = model(data.x, data.train_edge_index, data.train_edge_attr)
-        
-        loss = loss_function(out, data.train_edge_attr)
+        out = model(data.x, data.edge_index)
+        loss = loss_function(out, torch.tensor(data.edge_attr, dtype=torch.float32))
         
         loss.backward()
         optimizer.step()
         
         if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss.item()}')
-            
-train(model, data, optimizer)
+        val_attr = evaluate(model, val_data, val_data.edge_index, val_data.edge_attr)
+        val_loss.append(val_attr[1])
+        val_acc.append(val_attr[0])
+    plt.plot(range(0, len(val_loss)), val_loss)
+    plt.show()
+    plt.plot(range(0, len(val_acc)), val_acc)
+    plt.show()
+    
 
-def evaluate(model, data, edge_index, edge_attr):
-    model.eval()
-    with torch.no_grad():
-        out = model(data.x, edge_index, edge_attr)
-        predicted_edge_types = (out > 0.5).long()
-        accuracy = (predicted_edge_types == edge_attr).float().mean().item()
-    return accuracy
+print("amt of train_data is: ", len(train_data))
+train(model, train_data, optimizer)
 
-val_acc = evaluate(model, data, data.val_edge_index, data.val_edge_attr)
-test_acc = evaluate(model, data, data.test_edge_index, data.test_edge_attr)
+val_acc = evaluate(model, val_data, val_data.edge_index, val_data.edge_attr)
+test_acc = evaluate(model, test_data, test_data.edge_index, test_data.edge_attr)
 
-print(f"Val Acc: {val_acc:.4f}")
-print(f"Test Acc: {test_acc:.4f}")
+print(f"Val Acc: {val_acc[0]:.4f}")
+print(f"Test Acc: {test_acc[0]:.4f}")
 
 torch.save(model.state_dict(), "optimized_weights.pth")
 
