@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.preprocessing import normalize
-from torch_geometric.utils import train_test_split_edges, negative_sampling
+from torch_geometric.utils import train_test_split_edges
 
 import preprocessing
 import layers
@@ -44,6 +44,7 @@ edge_type = torch.zeros((0, edge_types))
 combos = list(combo2se.keys())
 ses_from_combos = list(combo2se.values())
 
+print(num_edges)
 for i in range(num_edges):
     name1, name2 = combos[i].split('_')
     edge_index[0, i] = name2featvec[name1][0]
@@ -52,6 +53,7 @@ for i in range(num_edges):
     for se in ses_from_combos[i]:
         temp.add(torch.tensor(se2featvec[se]))
     edge_type = torch.cat([edge_type, temp], dim = 0)
+    print(i)
     
 print(type(edge_index))
 print(type(edge_type))
@@ -105,3 +107,6 @@ test_acc = evaluate(model, data, data.test_edge_index, data.test_edge_attr)
 
 print(f"Val Acc: {val_acc:.4f}")
 print(f"Test Acc: {test_acc:.4f}")
+
+torch.save(model.state_dict(), "optimized_weights.pth")
+
