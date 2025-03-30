@@ -1,0 +1,310 @@
+
+/* Remove Button */
+.remove-button {
+    background-color: transparent; /* Make the background transparent */
+    color: black; /* Black color for the "X" */
+    border: none; /* Remove the border */
+    font-size: 24px; /* Adjust the size of the "X" */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    padding: 0; /* Remove any padding */
+    display: flex;
+    justify-content: center; /* Center the "X" */
+    align-items: center; /* Vertically center the "X" */
+    width: 30px; /* Set a fixed width for the button */
+    height: 30px; /* Set a fixed height for the button */
+}
+
+/* Hover effect for remove button */
+.remove-button:hover {
+    transform: scale(1.3); /* Slight zoom effect on hover */
+}
+
+/* Flexbox container for input and dropdown */
+.autocomplete-container {
+    margin-left: 0px;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column; /* Stack input and dropdown vertically */
+    position: relative; /* Ensure dropdown is positioned relative to the container */
+    width: 100%; /* Ensure the container matches the desired width */
+    align-items: flex-start; /* Align the input and suggestions in the center */
+}
+
+/* Input field */
+.autocomplete-input {
+    border: 1px solid #ccc;
+    padding: 12px 16px;
+    width: 100%; /* Match the container width */
+    width: 320px;
+    border-radius: 12px; /* Rounded corners for a smooth look */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    font-size: 14px;
+
+    transition: all 0.3s ease-in-out; /* Smooth transition on focus */
+}
+
+.autocomplete-input:focus {
+    border-color: #4e90d2; /* Highlight border color on focus */
+    box-shadow: 0 0 8px rgba(78, 144, 210, 0.6); /* Add shadow effect on focus */
+    outline: none; /* Remove default focus outline */
+}
+
+/* Dropdown List */
+.autocomplete-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 100%; /* Match the width of the container */
+    margin-top: 3px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    z-index: 10; /* Ensure dropdown appears above other elements */
+    padding: 5px 0; /* Add some space around the items */
+}
+
+/* Individual List Items */
+.autocomplete-item {
+    padding: 12px 16px; /* Adjust padding for better alignment */
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out; /* Smooth background transition */
+    border-radius: 12px; /* Rounded corners */
+    font-size: 14px;
+    color: #333;
+    text-align: left; /* Align text to the left */
+    display: flex; /* Use flexbox for better alignment */
+    align-items: center; /* Vertically center the text */
+    padding-left: 24px; /* Indentation to align text */
+}
+
+/* Hover effect for items */
+.autocomplete-item:hover {
+    background-color: #e0f7fa; /* Light blue background on hover */
+    color: #00796b; /* Darker color for text */
+}
+
+/* Ensure the form layout doesn't overlap */
+.autocomplete-container form {
+    position: relative;
+    padding-bottom: 10px; /* Add space below the dropdown to avoid overlap */
+}
+
+/* Style for the submitted options section */
+.submitted-options {
+    margin-top: 10px;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Full width under the input */
+    max-width: 400px; /* Fixed width for the container */
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fafafa;
+    height: 410px; /* Increased height to fit 5 options */
+    overflow-y: hidden; /* No scrolling when all items fit */
+}
+
+.submitted-options h3 {
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #00796b;
+    text-transform: none;
+    letter-spacing: 1px;
+}
+.submit-button {
+    background-color: #00796b;
+    height: 35px; /* Match the input field height */
+    padding: 0 16px; /* Adjust padding as needed */
+}
+
+.submitted-options ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.submitted-item {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;  /* Keeps the text and button on opposite sides */
+    align-items: center;  /* Vertically center the content */
+    width: 100%;  /* Use full width for the container */
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.submitted-item:nth-child(odd) {
+    background-color: #f1f1f1; /* Alternating colors for better readability */
+}
+
+.submitted-item:hover {
+    transform: scale(1.02); /* Slight zoom effect on hover */
+    background-color: #e0f7fa;
+}
+
+/* Scrollable list of submitted items */
+.submitted-options ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 80%; /* Ensure the ul takes full width of the container */
+}
+
+/* Animations for removing items */
+.submitted-item.removing {
+    animation: slideOut 0.5s ease-in-out forwards;
+}
+
+@keyframes slideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+
+/* Drug Information Box */
+.drug-info-box {
+    margin-top: 10px; /* Space above the box */
+    padding: 20px; /* Add space inside the box */
+    padding-top: 0px;
+    padding-bottom: 10px;
+    background-color: #ffffff; /* White background for a clean look */
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%; /* Full width */
+    max-width: 390px; /* Limit the maximum width */
+    font-size: 14px; /* Adjust text size */
+    color: #333; /* Dark text for readability */
+    line-height: 1.5; /* Improve text spacing */
+    overflow-wrap: break-word; /* Prevent text from overflowing */
+    position: relative; /* Allow positioning of child elements */
+}
+
+/* Header for the drug info box */
+.drug-info-box h3 {
+    font-size: 20px; /* Larger font size for the title */
+    font-weight: 600; /* Bold title */
+    margin-bottom: 15px; /* Space below the title */
+    color: #00796b; /* A subtle green for emphasis */
+}
+
+/* Loading spinner or message */
+.loading-message {
+    font-style: italic; /* Italicize loading text */
+    color: #666; /* Subtle gray for loading state */
+}
+
+/* Adjust box for responsive design */
+@media (max-width: 600px) {
+    .drug-info-box {
+        padding: 15px; /* Adjust padding for smaller screens */
+        font-size: 14px; /* Reduce text size */
+    }
+
+    .drug-info-box h3 {
+        font-size: 18px; /* Adjust title size */
+    }
+}
+
+
+/* Main container for the left and right sections */
+.main-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 20px; /* Space between left and right sections */
+    margin-top: 20px;
+}
+
+/* Left container for search and submitted options */
+.left-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 235px;
+    margin-top: 40px;
+}
+
+/* Right container for interactions */
+.right-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+    margin-left: 100px;
+    margin-bottom: 20px;
+    width: 450px; /* Adjust width as needed */
+}
+
+/* Fetch Interactions button */
+.fetch-interactions-button {
+    margin-top: 22px;
+    padding: 10px 20px;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+
+.fetch-interactions-button:hover {
+    background-color: #005a4f;
+}
+
+/* Style for the interaction data box */
+.interaction-data-box {
+    margin-top: 10px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 390px;
+    font-size: 14px;
+    color: #00796b;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+}
+
+.interaction-data-box {
+    margin-top: 21.5px; /* Adjust this value to increase spacing */
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 390px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+}
+.interaction-data-box h3{
+    color: #00796b;
+}
+
