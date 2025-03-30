@@ -53,7 +53,6 @@ for i in range(num_edges):
     for se in ses_from_combos[i]:
         temp.add(torch.tensor(se2featvec[se]))
     edge_type = torch.cat([edge_type, temp], dim = 0)
-    print(i)
     
 print(type(edge_index))
 print(type(edge_type))
