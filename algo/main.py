@@ -36,24 +36,25 @@ num2se = dict(zip(range(0, edge_types), list(ses)))
 
 se2featvec = dict(zip(list(ses), se_features))
 node_features = torch.tensor(drug_features)
-print(node_features.shape)
 
 num_edges = len(combo2se)
-edge_index = torch.empty((2,0), dtype=torch.
-edge_type = torch.empty(
-for key, val in combo2se.items():
-    name1, name2 = key.split('_')
-    edge_index[0].append(name2featvec[name1][0])
-    edge_index[1].append(name2featvec[name2][0])
-    temp = torch.zeros(se2featvec[list(val)[0]].shape)
-    for se in val:
+edge_index = torch.zeros((2, num_edges))
+edge_type = torch.zeros((0, edge_types))
+
+combos = list(combo2se.keys())
+ses_from_combos = list(combo2se.values())
+
+for i in range(num_edges):
+    name1, name2 = combos[i].split('_')
+    edge_index[0, i] = name2featvec[name1][0]
+    edge_index[1, i] = name2featvec[name2][0]
+    temp = torch.zeros(1, edge_types)
+    for se in ses_from_combos[i]:
         temp.add(torch.tensor(se2featvec[se]))
-    edge_type.append(temp)
+    edge_type = torch.cat([edge_type, temp], dim = 0)
     
 print(type(edge_index))
 print(type(edge_type))
-edge_index = np.array(edge_index)
-edge_type = np.array(edge_type)
 print(edge_index.shape)
 print(edge_type.shape)
 print(edge_type)
