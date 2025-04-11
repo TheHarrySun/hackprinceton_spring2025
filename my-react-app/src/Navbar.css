@@ -1,0 +1,42 @@
+/* Navbar.css */
+
+/* The navbar spans the top of the screen */
+.navbar {
+    position: fixed;  /* Fix it to the top of the page */
+    top: 0;           /* Ensure it sticks to the top */
+    left: 0;          /* Start from the left side */
+    right: 0;         /* Stretch to the right edge */
+    padding: 15px 0;  /* Add some padding to make it look nice */
+    display: flex;
+    justify-content: center;  /* Center the content horizontally */
+    align-items: center;      /* Center the content vertically */
+    z-index: 1000; /* Ensure it's above other elements */
+    width: 100%;   /* Make it span across the entire window */
+  }
+  
+  /* Content inside the navbar */
+  .navbar-content {
+    display: flex;
+    justify-content: center; /* Center content horizontally inside the navbar */
+    align-items: center; /* Center the content vertically */
+    width: 100%;    /* Allow the content to stretch across the navbar */
+  }
+  
+  /* Title of the navbar */
+
+
+  .navbar-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .half-black {
+    color: black
+  }
+  
+  .half-green {
+    color: #00796b;
+  }
+  
+  
